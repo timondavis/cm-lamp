@@ -1,0 +1,40 @@
+version: "3"
+services:
+  cm-php:
+    build:
+      context: ./cm-php
+      dockerfile: Dockerfile
+    networks:
+      - backend
+    volumes:
+      - ./public_html:/var/www/html/
+  cm-httpd:
+    build:
+      context: ./cm-httpd
+      dockerfile: Dockerfile 
+    depends_on:
+      - cm-php
+      - cm-mariadb
+    ports:
+      - "80:80"
+    volumes:
+      - ./public_html:/var/www/html/
+    networks:
+      - frontend
+      - backend
+  cm-mariadb:
+    image: mariadb:10.1
+    restart: always
+    environment:
+       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    networks:
+       - backend 
+    volumes:
+       - cm-dbdata:/var/lib/mysql
+    ports:
+      - "3306:3306"
+networks:
+  frontend:
+  backend:
+volumes:
+  cm-dbdata:
